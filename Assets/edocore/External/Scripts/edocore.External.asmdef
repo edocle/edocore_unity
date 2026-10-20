@@ -1,0 +1,17 @@
+{
+    "name": "edocore.External",
+    "rootNamespace": "",
+    "references": [
+        "edocore.Core",
+        "edocore.Tools"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

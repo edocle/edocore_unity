@@ -1,0 +1,45 @@
+---
+description: edocore framework layering (Core, External, Tools, Sample), entry points and service conventions
+alwaysApply: true
+---
+
+# edocore architecture
+
+`Assets/edocore` is the root of the framework. Each layer has `Scripts/` and `Datas/` subfolders.
+
+| Folder | Assembly | Purpose |
+|--------|----------|---------|
+| `Assets/edocore/Core` | `edocore.Core` | Internal implementation. Game makers must never touch it. |
+| `Assets/edocore/External` | `edocore.External` | Public API that game makers call directly. |
+| `Assets/edocore/Tools` | `edocore.Tools` | Generic tools that work immediately (AsynchronousTask, logs, maths...). |
+| `Assets/edocore/Sample` | `edocore.Sample` | Files used to try the framework. Behaves like a game maker. |
+
+## Allowed dependencies
+
+- Scripts outside `Assets/edocore` (Assembly-CSharp) -> External and Tools only.
+- Sample -> External and Tools only.
+- External -> Core, Tools.
+- Core -> Tools only (never External, never Sample).
+- Tools -> nothing in edocore.
+- Nothing may depend on Sample.
+
+## Assembly definitions
+
+- Never add `edocore.Core` to the references of any asmdef other than `edocore.External`.
+- `autoReferenced`: false on `edocore.Core` and `edocore.Sample`; true on `edocore.External` and `edocore.Tools`.
+- External never stores a Core type in a field or exposes one in a public/protected signature; Core types are only used inside method bodies or `internal` members. Core receives settings as plain data, never as External types.
+
+## Entry points
+
+- External: `Starter`, `Parameters`, `ServiceParameter`, `Service`, `Service_Actor`, `Framework`.
+- Core: `Router`, `ServicesHandler` (reached through `Router.Current.Services`).
+- Tools: `AsynchronousTask` and future generic tools.
+- Game makers extend the framework by subclassing `Starter`, `Service<...>`, `Service_Actor` and `ServiceParameter`.
+
+## Services (Strategy, terminate before switching)
+
+- `Service_X : Service<Service_X_Actor>` or `Service<Service_X_Actor, Service_X_Parameter>`: commands and feedbacks only.
+- `Service_X_Actor : Service_Actor` (or `Service_Actor<Service_X_Parameter>`): abstract operations every implementation provides.
+- `Service_X_Actor_Y`: the only place third-party SDK code goes.
+- `Service_X_Parameter : ServiceParameter`: settings asset, listed in `Parameters`.
+- Core never references concrete service types; it talks to services through callbacks and listeners.
